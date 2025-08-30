@@ -7,7 +7,10 @@ import { useRouter } from "next/navigation";
 
 export default function Category() {
   const [categories, setCategories] = useState([]);
+  const [filteredCategories, setFilteredCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedType, setSelectedType] = useState("all"); // service/feature/offer
+  const [selectedGender, setSelectedGender] = useState("all"); // male/female/unisex
   const router = useRouter();
 
   useEffect(() => {
@@ -19,6 +22,7 @@ export default function Category() {
           ...doc.data(),
         }));
         setCategories(data);
+        setFilteredCategories(data); // initially all
       } catch (error) {
         console.error("Error fetching categories:", error);
       } finally {
@@ -29,6 +33,22 @@ export default function Category() {
     fetchCategories();
   }, []);
 
+  // ✅ Filter handler
+  useEffect(() => {
+    let filtered = categories;
+
+    if (selectedType !== "all") {
+      filtered = filtered.filter((cat) => cat.type === selectedType);
+    }
+    if (selectedGender !== "all") {
+      filtered = filtered.filter(
+        (cat) => cat.gender === selectedGender || cat.gender === "unisex"
+      );
+    }
+
+    setFilteredCategories(filtered);
+  }, [selectedType, selectedGender, categories]);
+
   const handleBookNow = (cat) => {
     router.push(`/book?category=${cat.id}`); 
   };
@@ -37,13 +57,11 @@ export default function Category() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 py-12 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-800 mb-4">Our Premium Services</h1>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Indulge in our luxurious beauty treatments tailored just for you
-            </p>
-          </div>
+        <div className="max-w-7xl mx-auto text-center">
+          <h1 className="text-4xl font-bold mb-4">Our Premium Services</h1>
+          <p className="text-gray-600 mb-8">
+            Indulge in our luxurious beauty treatments tailored just for you
+          </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center animate-pulse">
@@ -69,20 +87,45 @@ export default function Category() {
           Our <span className="text-pink-500">Premium</span> Services
         </h1>
         <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-          Indulge in our luxurious beauty treatments tailored just for you. 
+          Indulge in our luxurious beauty treatments tailored just for you.
           Our expert stylists are ready to make you look and feel fabulous.
         </p>
+      </div>
+
+      {/* Filters */}
+      <div className="max-w-7xl mx-auto mb-8 flex flex-wrap gap-4 justify-center">
+        <select
+          value={selectedType}
+          onChange={(e) => setSelectedType(e.target.value)}
+          className="border px-3 py-2 rounded focus:outline-none focus:ring focus:ring-pink-300"
+        >
+          <option value="all">All Types</option>
+          <option value="service">Service</option>
+          <option value="feature">Feature</option>
+          <option value="offer">Offer</option>
+        </select>
+
+        <select
+          value={selectedGender}
+          onChange={(e) => setSelectedGender(e.target.value)}
+          className="border px-3 py-2 rounded focus:outline-none focus:ring focus:ring-pink-300"
+        >
+          <option value="all">All Genders</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="unisex">Unisex</option>
+        </select>
       </div>
 
       {/* Categories Grid */}
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {categories.map((cat) => (
+          {filteredCategories.map((cat) => (
             <div
               key={cat.id}
               className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col"
             >
-              {/* Image Container */}
+              {/* Image */}
               <div className="relative h-48 overflow-hidden">
                 {cat.image ? (
                   <img
@@ -95,30 +138,15 @@ export default function Category() {
                     <span className="text-5xl">💇</span>
                   </div>
                 )}
-                <div className="absolute top-4 right-4 bg-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                  Popular
-                </div>
               </div>
 
               {/* Content */}
               <div className="p-6 flex flex-col flex-grow">
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">{cat.name}</h3>
-                <p className="text-gray-600 text-sm mb-4 flex-grow line-clamp-2">
-                  {cat.description}
-                </p>
-                
+                <p className="text-gray-600 text-sm mb-4 flex-grow line-clamp-2">{cat.description}</p>
                 <div className="flex items-center justify-between mt-auto">
                   <div className="text-pink-600 font-bold text-lg">₹ {cat.price}</div>
-                  <div className="flex items-center text-yellow-400">
-                    {[...Array(5)].map((_, i) => (
-                      <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                      </svg>
-                    ))}
-                    <span className="text-gray-500 text-sm ml-1">(42)</span>
-                  </div>
                 </div>
-
                 <button
                   onClick={() => handleBookNow(cat)}
                   className="mt-4 w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-3 px-4 rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-300 shadow-md hover:shadow-lg font-medium"
@@ -129,18 +157,6 @@ export default function Category() {
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Call to Action */}
-      <div className="max-w-7xl mx-auto mt-16 text-center bg-white rounded-xl shadow-lg p-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">Ready for a Transformation?</h2>
-        <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-          Book your appointment today and experience the luxury our salon has to offer. 
-          Our team of experts is waiting to give you the perfect look.
-        </p>
-        <button className="bg-gray-800 text-white py-3 px-8 rounded-lg hover:bg-gray-900 transition-colors duration-300 font-medium">
-          Contact Us
-        </button>
       </div>
     </div>
   );
