@@ -241,7 +241,7 @@ export default function SalonNavbar() {
       </div>
 
       {/* Add padding-top to content so it doesn't hide behind navbar */}
-      <div className="pt-[120px]"></div>
+      <div className="pt-[50px]"></div>
     </>
   );
 }
