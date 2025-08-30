@@ -5,6 +5,7 @@
 import Navbar from "@/components/Header/Navbar";
 import Footer from "@/components/Footer/footer";
 
+
 const Layout = ({ children }) => {
   return (
     <>
@@ -12,9 +13,9 @@ const Layout = ({ children }) => {
       <Navbar />
       <main>{children}</main>
       <Footer />
+      
     </>
   );
 };
 
 export default Layout;
-

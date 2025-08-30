@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { db } from "@/firebase/firebase";  // apna firebase.js config import karo
+import { db } from "@/firebase/firebase";  
 import { collection, addDoc, Timestamp } from "firebase/firestore";
-import Layout from '@/components/Layout/Layout';
+import ProtectedRoute from "@/components/ProtectedRoute";
+import Layout from "@/components/Layout/Layout";
+
 export default function BookAppointment() {
   const [formData, setFormData] = useState({
     name: "",
@@ -48,83 +50,85 @@ export default function BookAppointment() {
   };
 
   return (
-    <Layout>
-    <div className="min-h-screen flex items-center justify-center bg-pink-50">
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold text-pink-600 mb-6 text-center">
-          Book Your Appointment
-        </h1>
+    <ProtectedRoute>
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center bg-pink-50">
+          <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+            <h1 className="text-2xl font-bold text-pink-600 mb-6 text-center">
+              Book Your Appointment
+            </h1>
 
-        {success && (
-          <p className="text-green-600 mb-4 text-center">
-            ✅ Appointment booked successfully!
-          </p>
-        )}
+            {success && (
+              <p className="text-green-600 mb-4 text-center">
+                ✅ Appointment booked successfully!
+              </p>
+            )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Full Name"
-            required
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-400"
-          />
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Full Name"
+                required
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-400"
+              />
 
-          <input
-            type="tel"
-            name="mobile"
-            value={formData.mobile}
-            onChange={handleChange}
-            placeholder="Mobile Number"
-            required
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-400"
-          />
+              <input
+                type="tel"
+                name="mobile"
+                value={formData.mobile}
+                onChange={handleChange}
+                placeholder="Mobile Number"
+                required
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-400"
+              />
 
-          <select
-            name="service"
-            value={formData.service}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-400"
-          >
-            <option value="">Select Service</option>
-            {services.map((s, i) => (
-              <option key={i} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
+              <select
+                name="service"
+                value={formData.service}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-400"
+              >
+                <option value="">Select Service</option>
+                {services.map((s, i) => (
+                  <option key={i} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
 
-          <input
-            type="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-400"
-          />
+              <input
+                type="date"
+                name="date"
+                value={formData.date}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-400"
+              />
 
-          <input
-            type="time"
-            name="time"
-            value={formData.time}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-400"
-          />
+              <input
+                type="time"
+                name="time"
+                value={formData.time}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-400"
+              />
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-pink-600 text-white py-2 rounded-lg font-semibold hover:bg-pink-700 transition"
-          >
-            {loading ? "Booking..." : "Book Appointment"}
-          </button>
-        </form>
-      </div>
-    </div>
-    </Layout>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-pink-600 text-white py-2 rounded-lg font-semibold hover:bg-pink-700 transition"
+              >
+                {loading ? "Booking..." : "Book Appointment"}
+              </button>
+            </form>
+          </div>
+        </div>
+      </Layout>
+    </ProtectedRoute>
   );
 }
