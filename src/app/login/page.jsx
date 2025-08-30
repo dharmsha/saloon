@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebase/firebase";
 import { useRouter } from "next/navigation";
 
@@ -10,12 +10,20 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLogin, setIsLogin] = useState(true); // 👈 toggle for login/signup
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push("/book"); // login ke baad book page
+      if (isLogin) {
+        // 🔹 Login
+        await signInWithEmailAndPassword(auth, email, password);
+      } else {
+        // 🔹 Signup
+        await createUserWithEmailAndPassword(auth, email, password);
+      }
+      router.push("/book"); // login/signup ke baad redirect
     } catch (err) {
       setError(err.message);
     }
@@ -24,9 +32,12 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">
+          {isLogin ? "Login" : "Sign Up"}
+        </h1>
         {error && <p className="text-red-500 mb-4">{error}</p>}
-        <form onSubmit={handleLogin} className="space-y-4">
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
             value={email}
@@ -47,9 +58,20 @@ export default function LoginPage() {
             type="submit"
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
           >
-            Login
+            {isLogin ? "Login" : "Sign Up"}
           </button>
         </form>
+
+        {/* 👇 Toggle between login/signup */}
+        <p className="mt-4 text-center text-sm">
+          {isLogin ? "New user?" : "Already have an account?"}{" "}
+          <button
+            onClick={() => setIsLogin(!isLogin)}
+            className="text-blue-600 hover:underline"
+          >
+            {isLogin ? "Create an account" : "Login here"}
+          </button>
+        </p>
       </div>
     </div>
   );
