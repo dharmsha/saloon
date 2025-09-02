@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { db } from "@/firebase/firebase";  
+import { db } from "@/firebase/firebase";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Layout from "@/components/Layout/Layout";
@@ -13,6 +13,7 @@ export default function BookAppointment() {
     service: "",
     date: "",
     time: "",
+    location: "", // 🔹 new field
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -29,6 +30,26 @@ export default function BookAppointment() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // 🔹 Auto-detect location
+  const handleGetLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          setFormData({
+            ...formData,
+            location: `Lat: ${latitude}, Lng: ${longitude}`,
+          });
+        },
+        (err) => {
+          alert("Location access denied. Please enter manually.");
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -40,7 +61,14 @@ export default function BookAppointment() {
       });
 
       setSuccess(true);
-      setFormData({ name: "", mobile: "", service: "", date: "", time: "" });
+      setFormData({
+        name: "",
+        mobile: "",
+        service: "",
+        date: "",
+        time: "",
+        location: "",
+      });
     } catch (err) {
       console.error("Error saving appointment:", err);
       alert("Something went wrong, please try again!");
@@ -117,6 +145,26 @@ export default function BookAppointment() {
                 required
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-400"
               />
+
+              {/* 🔹 Location Field */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  placeholder="Enter your location"
+                  required
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-400"
+                />
+                <button
+                  type="button"
+                  onClick={handleGetLocation}
+                  className="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+                >
+                  📍
+                </button>
+              </div>
 
               <button
                 type="submit"
