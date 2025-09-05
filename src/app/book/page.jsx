@@ -13,7 +13,7 @@ export default function BookAppointment() {
     service: "",
     date: "",
     time: "",
-    location: "", // 🔹 new field
+    location: "",
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -41,7 +41,7 @@ export default function BookAppointment() {
             location: `Lat: ${latitude}, Lng: ${longitude}`,
           });
         },
-        (err) => {
+        () => {
           alert("Location access denied. Please enter manually.");
         }
       );
@@ -55,9 +55,19 @@ export default function BookAppointment() {
     setLoading(true);
 
     try {
+      // ✅ Step 1: Firestore me save karo
       await addDoc(collection(db, "appointments"), {
         ...formData,
         createdAt: Timestamp.now(),
+      });
+
+      // ✅ Step 2: Email bhejne ke liye API call
+      await fetch("/api/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
 
       setSuccess(true);
@@ -88,7 +98,7 @@ export default function BookAppointment() {
 
             {success && (
               <p className="text-green-600 mb-4 text-center">
-                ✅ Appointment booked successfully!
+                ✅ Appointment booked successfully! Confirmation email sent.
               </p>
             )}
 
